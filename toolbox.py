@@ -23,6 +23,7 @@ from dns import resolver
 import socket
 import pickle
 import xml.parsers.expat
+import re
 
 def resolve(n, q):
 	return str(resolver.query(n,q)[0])
@@ -31,8 +32,16 @@ def get_asn_from_as(n):
     data = resolve("AS%s.asn.cymru.com" % n ,"TXT").replace("'","").replace('"','')
     return [ field.strip() for field in data.split("|") ]
 
+asname_regex=re.compile("as-name:\s+(?P<name>\S+)")
+
+def get_asname_from_whois(data):
+    r=asname_regex.search(data)
+    if not r:
+        return 'UNKNOWN-AS'
+    return r.groupdict()['name']
+
 def mask_is_valid(n):
-	if not n: 
+	if not n:
 		return True
 	try:
 		mask = int(n)

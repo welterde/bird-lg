@@ -29,7 +29,7 @@ from urllib import quote, unquote
 import json
 import random
 
-from toolbox import mask_is_valid, ipv6_is_valid, ipv4_is_valid, resolve, save_cache_pickle, load_cache_pickle, get_asn_from_as, unescape
+from toolbox import mask_is_valid, ipv6_is_valid, ipv4_is_valid, resolve, save_cache_pickle, load_cache_pickle, get_asname_from_whois, unescape
 #from xml.sax.saxutils import escape
 
 
@@ -96,7 +96,12 @@ def set_session(request_type, hosts, proto, request_args):
 
 
 def whois_command(query):
-    return subprocess.Popen(['whois', query], stdout=subprocess.PIPE).communicate()[0].decode('utf-8', 'ignore')
+    cmd=['whois']
+    if 'WHOIS_SERVER' in app.config:
+        cmd.append('-h')
+        cmd.append(app.config['WHOIS_SERVER'])
+    cmd.append(query)
+    return subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0].decode('utf-8', 'ignore')
 
 
 def bird_command(host, proto, query):
@@ -358,7 +363,7 @@ def get_as_name(_as):
     if not _as.isdigit():
         return _as.strip()
 
-    name = get_asn_from_as(_as)[-1].replace(" ","\r",1)
+    name = get_asname_from_whois(whois_command('AS' + _as)).replace(" ","\r",1)
     return "AS%s | %s" % (_as, name)
 
 
@@ -402,11 +407,11 @@ def show_bgpmap():
     def add_edge(_previous_as, _as, **kwargs):
         kwargs["splines"] = "true"
         force = kwargs.get("force", False)
-        
+
         # graphviz doesn't like label= (anymore?)
         if 'label' in kwargs and kwargs.get('label', '').strip() == '':
             del(kwargs['label'])
-        
+
         edge_tuple = (_previous_as, _as)
         if force or edge_tuple not in edges:
             edge = pydot.Edge(*edge_tuple, **kwargs)
