@@ -199,7 +199,7 @@ def whois():
 
     try:
         asnum = int(query)
-        query = "as%d" % asnum
+        query = "AS%d" % asnum
     except:
         m = re.match(r"[\w\d-]*\.(?P<domain>[\d\w-]+\.[\d\w-]+)$", query)
         if m:
