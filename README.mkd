@@ -14,7 +14,7 @@ software is splited onto two parts:
    The domain and the list of all bird node can be done
 
 
-
+<pre>
                                          ***************
                                     +--> * lg-proxy.py *
                                     |    ***************
@@ -26,6 +26,7 @@ software is splited onto two parts:
                                     |    ***************
                                     +--> * lg-proxy.py *
                                          ***************
+</pre>
 
 
 bird-lg depend on :
